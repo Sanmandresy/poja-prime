@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: prime - Compute permission
+
+Parameters:
+  Env:
+    Type: String
+
+Resources:
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '', [ prime-, !Ref Env, -ExecutionRole ] ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AdministratorAccess'
+
+  ExecutionRoleArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '',[ /prime/ , !Ref Env , /execution/role-arn ] ]
+      Type: String
+      Value: !GetAtt ExecutionRole.Arn
